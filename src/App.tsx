@@ -150,48 +150,56 @@ export default function App() {
         <section className="py-10 sm:py-14">
           <div className="max-w-2xl">
             <div ref={heroReveal.ref} className={`transition-all duration-700 ${heroReveal.className}`}>
-            <div className="flex flex-wrap gap-2">
-              <Pill>Telegram bot</Pill>
-              <Pill>n8n</Pill>
-              <Pill>Postgres</Pill>
-              <Pill>n8n</Pill>
-              <Pill>AI model</Pill>
-            </div>
+              <div className="flex flex-wrap gap-2">
+                <Pill>Telegram bot</Pill>
+                <Pill>n8n</Pill>
+                <Pill>Postgres</Pill>
+                <Pill>AI model</Pill>
+                <Pill>Cloudflare</Pill>
+              </div>
 
-            <h1 className="mt-6 text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
-              icemanic
-              <span className="text-slate-300"> — AI Automation Expert & System Administrator.</span>
-            </h1>
-            <p className="mt-5 text-pretty text-base leading-relaxed text-slate-300 sm:text-lg">
-              Розробник із фокусом на створенні інтелектуальних систем автоматизації та сучасних вебдодатків.
-              Спеціалізуюся на поєднанні швидкого прототипування інтерфейсів (Lovable, Windsurf) з потужною
-              бекенд-логікою на базі n8n та Telegram Bot API. Маю досвід інтеграції AI-моделей у робочі процеси та
-              архітектури баз даних (PostgreSQL). Ефективно використовую Cloudflare для розгортання масштабованої
-              інфраструктури. Мій підхід — це максимальна автоматизація рутинних завдань та створення продуктів,
-              що базуються на даних.
-            </p>
+              <h1 className="mt-6 text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
+                icemanic
+                <span className="text-slate-300"> — AI Automation Expert & System Administrator.</span>
+              </h1>
+              <details className="group mt-5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-slate-300 transition-all duration-300 hover:border-cyan-500/40 hover:bg-slate-900/60">
+                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-100">
+                  <span className="mr-2 inline-flex select-none items-center text-slate-400 transition-all duration-300 group-open:rotate-90">
+                    ▸
+                  </span>
+                  Розробник із фокусом…
+                </summary>
+                <p className="mt-3 text-pretty text-base leading-relaxed text-slate-300 sm:text-lg">
+                  Розробник із фокусом на створенні інтелектуальних систем автоматизації та сучасних вебдодатків.
+                  Спеціалізуюся на поєднанні швидкого прототипування інтерфейсів (Lovable, Windsurf) з потужною
+                  бекенд-логікою на базі n8n та Telegram Bot API. Маю досвід інтеграції AI-моделей у робочі процеси та
+                  архітектури баз даних (PostgreSQL). Ефективно використовую Cloudflare для розгортання масштабованої
+                  інфраструктури. Мій підхід — це максимальна автоматизація рутинних завдань та створення продуктів,
+                  що базуються на даних.
+                </p>
+              </details>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="#projects"
-                className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-cyan-300"
-              >
-                Переглянути проєкти
-              </a>
-              <button
-                type="button"
-                onClick={handleBotLaunch}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 hover:bg-slate-900/80"
-              >
-                {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Запустити StackattackBot'}
-              </button>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 hover:border-cyan-500/50 hover:bg-slate-900/80"
-              >
-                Контакти
-              </a>
-            </div>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="#projects"
+                  className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-cyan-300"
+                >
+                  Переглянути проєкти
+                </a>
+                <button
+                  type="button"
+                  onClick={handleBotLaunch}
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 hover:bg-slate-900/80"
+                >
+                  {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Запустити StackattackBot'}
+                </button>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 hover:border-cyan-500/50 hover:bg-slate-900/80"
+                >
+                  Контакти
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -293,13 +301,6 @@ export default function App() {
                   placeholder="Ваше ім’я"
                   className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
                 />
-                <button
-                  type="submit"
-                  disabled={sendState === 'sending'}
-                  className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 disabled:opacity-60"
-                >
-                  {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Надіслати у Telegram'}
-                </button>
               </div>
               <textarea
                 value={feedback.message}
@@ -308,6 +309,13 @@ export default function App() {
                 rows={4}
                 className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
               />
+              <button
+                type="submit"
+                disabled={sendState === 'sending'}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 disabled:opacity-60"
+              >
+                {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Надіслати у Telegram'}
+              </button>
             </form>
 
             <div className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
