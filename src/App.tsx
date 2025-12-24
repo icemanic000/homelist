@@ -1,3 +1,6 @@
+ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+ import { Cpu } from 'lucide-react'
+
 function Pill({ children }: { children: string }) {
   return (
     <span className="inline-flex items-center rounded-full border border-slate-700/60 bg-slate-900/60 px-3 py-1 text-xs text-slate-200">
@@ -5,6 +8,35 @@ function Pill({ children }: { children: string }) {
     </span>
   )
 }
+
+ function useReveal<T extends HTMLElement>() {
+   const ref = useRef<T | null>(null)
+   const [isVisible, setIsVisible] = useState(false)
+
+   useEffect(() => {
+     const el = ref.current
+     if (!el) return
+
+     const io = new IntersectionObserver(
+       ([entry]) => {
+         if (entry?.isIntersecting) {
+           setIsVisible(true)
+           io.disconnect()
+         }
+       },
+       { threshold: 0.15 },
+     )
+
+     io.observe(el)
+     return () => io.disconnect()
+   }, [])
+
+   const className = isVisible
+     ? 'opacity-100 translate-y-0'
+     : 'opacity-0 translate-y-4'
+
+   return { ref, className }
+ }
 
 function Card({
   title,
@@ -17,8 +49,12 @@ function Card({
   meta: string
   href?: string
 }) {
+  const { ref, className } = useReveal<HTMLDivElement>()
   const inner = (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-[0_0_0_1px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:border-slate-700 hover:bg-slate-900/90">
+    <div
+      ref={ref}
+      className={`rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-[0_0_0_1px_rgba(15,23,42,0.6)] transition-all duration-300 ${className} hover:scale-105 hover:border-cyan-500/40 hover:bg-slate-900/95 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.18),0_20px_60px_-30px_rgba(34,211,238,0.35)]`}
+    >
       <div className="text-base font-semibold tracking-tight text-slate-100">{title}</div>
       <div className="mt-2 text-sm leading-relaxed text-slate-300">{desc}</div>
       <div className="mt-4 text-xs text-slate-400">{meta}</div>
@@ -35,12 +71,58 @@ function Card({
 }
 
 export default function App() {
+  const webhookUrl = useMemo(() => import.meta.env.VITE_N8N_WEBHOOK_URL as string | undefined, [])
+  const [sendState, setSendState] = useState<'idle' | 'sending' | 'done'>('idle')
+  const [feedback, setFeedback] = useState({ name: '', message: '' })
+  const heroReveal = useReveal<HTMLDivElement>()
+  const projectsReveal = useReveal<HTMLDivElement>()
+  const contactReveal = useReveal<HTMLDivElement>()
+
+  async function postToWebhook(payload: unknown) {
+    if (!webhookUrl) return
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async function handleBotLaunch() {
+    setSendState('sending')
+    try {
+      await postToWebhook({ source: 'website', type: 'open_bot', bot: 'StackattackBot', at: new Date().toISOString() })
+      setSendState('done')
+      window.open('https://t.me/StackattackBot', '_blank', 'noreferrer')
+    } finally {
+      window.setTimeout(() => setSendState('idle'), 1400)
+    }
+  }
+
+  async function handleFeedbackSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setSendState('sending')
+    try {
+      await postToWebhook({
+        source: 'website',
+        type: 'feedback',
+        name: feedback.name,
+        message: feedback.message,
+        at: new Date().toISOString(),
+      })
+      setSendState('done')
+      setFeedback({ name: '', message: '' })
+    } finally {
+      window.setTimeout(() => setSendState('idle'), 1400)
+    }
+  }
+
   return (
     <div className="min-h-dvh bg-slate-950 text-slate-100">
       <header className="mx-auto max-w-5xl px-4 py-6">
         <nav className="flex items-center justify-between">
-          <a href="https://krapsi.fun" className="font-semibold tracking-tight">
-            <span className="text-slate-100">icemanic.</span>
+          <a href="https://krapsi.fun" className="flex items-center gap-2 font-semibold tracking-tight">
+            <Cpu className="h-5 w-5 text-cyan-300" aria-hidden="true" />
+            <span className="text-slate-100">krapsi.fun</span>
           </a>
 
           <div className="hidden items-center gap-5 text-sm text-slate-300 sm:flex">
@@ -67,6 +149,7 @@ export default function App() {
       <main id="top" className="mx-auto max-w-5xl px-4 pb-14">
         <section className="py-10 sm:py-14">
           <div className="max-w-2xl">
+            <div ref={heroReveal.ref} className={`transition-all duration-700 ${heroReveal.className}`}>
             <div className="flex flex-wrap gap-2">
               <Pill>Telegram bot</Pill>
               <Pill>n8n</Pill>
@@ -80,8 +163,12 @@ export default function App() {
               <span className="text-slate-300"> — AI Automation Expert & System Administrator.</span>
             </h1>
             <p className="mt-5 text-pretty text-base leading-relaxed text-slate-300 sm:text-lg">
-              Розробка Telegram-ботів, інтегрованих з n8n, Postgres та AI-моделями. Створення складних систем
-              автоматизації: від ідеї до production.
+              Розробник із фокусом на створенні інтелектуальних систем автоматизації та сучасних вебдодатків.
+              Спеціалізуюся на поєднанні швидкого прототипування інтерфейсів (Lovable, Windsurf) з потужною
+              бекенд-логікою на базі n8n та Telegram Bot API. Маю досвід інтеграції AI-моделей у робочі процеси та
+              архітектури баз даних (PostgreSQL). Ефективно використовую Cloudflare для розгортання масштабованої
+              інфраструктури. Мій підхід — це максимальна автоматизація рутинних завдань та створення продуктів,
+              що базуються на даних.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -91,6 +178,13 @@ export default function App() {
               >
                 Переглянути проєкти
               </a>
+              <button
+                type="button"
+                onClick={handleBotLaunch}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 hover:bg-slate-900/80"
+              >
+                {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Запустити StackattackBot'}
+              </button>
               <a
                 href="#contact"
                 className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 hover:border-cyan-500/50 hover:bg-slate-900/80"
@@ -98,75 +192,75 @@ export default function App() {
                 Контакти
               </a>
             </div>
+            </div>
           </div>
         </section>
 
         <section id="about" className="py-10">
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Про мене</div>
-              <div className="mt-3 text-lg font-semibold tracking-tight text-slate-100">icemanic</div>
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                Проєктую та будую AI-автоматизації з упором на архітектуру workflow, якість даних та стабільність у
-                production.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Фокус</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Pill>n8n</Pill>
-                <Pill>Postgres</Pill>
-                <Pill>Docker</Pill>
-                <Pill>Cloudflare</Pill>
-                <Pill>AI-workflows architecture</Pill>
-                <Pill>DB management</Pill>
-                <Pill>OpenAI</Pill>
-                <Pill>Gemini</Pill>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                Архітектура AI-workflows, інтеграції, та керування базами даних для надійних систем.
-              </p>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card
+              title="Розробка вебдодатків"
+              desc="Швидка ітерація за допомогою AI-інструментів (Lovable, Windsurf), React, Vite."
+              meta="UI prototyping · React · Vite"
+            />
+            <Card
+              title="Автоматизація та AI"
+              desc="Побудова workflow в n8n, підключення AI-моделей (OpenAI, Gemini тощо) для обробки даних."
+              meta="n8n · LLM · data processing"
+            />
+            <Card
+              title="Месенджери"
+              desc={'Створення складних Telegram-ботів "під ключ" (від логіки до бази даних).'}
+              meta="Telegram Bot API · backend logic · DB"
+            />
+            <Card
+              title="Інфраструктура"
+              desc="Робота з базами даних (PostgreSQL), хостинг та безпека через Cloudflare (Pages, Workers, DNS)."
+              meta="PostgreSQL · Cloudflare · security"
+            />
           </div>
         </section>
 
         <section id="projects" className="py-10">
-          <div className="flex items-end justify-between gap-6">
+          <div ref={projectsReveal.ref} className={`flex items-end justify-between gap-6 transition-all duration-700 ${projectsReveal.className}`}>
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Проєкти</div>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">Головні роботи</h2>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">
+                Будую AI-рішення від ідеї до деплою.
+              </h2>
               <p className="mt-2 text-sm text-slate-300">Те, що варто відкрити.</p>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <Card
-              title="Krapsi"
-              desc="Платформа для AI content generation та автоматизації. Швидкі інтеграції, workflow та запуск у production."
-              meta="krapsi.fun · n8n · Postgres · AI model"
-              href="https://krapsi.fun"
+              title="Frontend"
+              desc="Створення сучасних UI через Lovable та кастомізація коду в Windsurf."
+              meta="Lovable · Windsurf · UI"
             />
             <Card
-              title="AI-автоматизації"
-              desc="Складні AI-workflows, інтеграції сервісів та оркестрація процесів під бізнес-логіку."
-              meta="n8n · Cloudflare · production"
+              title="Automation"
+              desc="Складні сценарії в n8n, інтеграція LLM (AI моделей) у бізнес-процеси."
+              meta="n8n · LLM · integrations"
             />
             <Card
-              title="Postgres & Дані"
-              desc="Проєктування схем, оптимізація запитів, міграції та контроль якості даних."
-              meta="Postgres · DB management · monitoring"
+              title="Backend"
+              desc="Розробка функціональних Telegram-ботів, проектування баз даних та робота з API."
+              meta="Telegram Bot API · PostgreSQL · APIs"
             />
             <Card
-              title="Інтеграції AI"
-              desc="Підключення OpenAI/Gemini та інших AI-моделей до продуктів через API та automation."
-              meta="OpenAI · Gemini · integrations"
+              title="DevOps"
+              desc="Розміщення та оптимізація проєктів на Cloudflare. Допомагаю бізнесу впроваджувати AI та автоматизувати комунікації."
+              meta="Cloudflare · deployment · performance"
             />
           </div>
         </section>
 
         <section id="contact" className="py-10">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div
+            ref={contactReveal.ref}
+            className={`rounded-2xl border border-slate-800 bg-slate-900 p-6 transition-all duration-700 ${contactReveal.className}`}
+          >
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Контакти</div>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-100">Звʼяжись зі мною</h2>
             <p className="mt-2 text-sm text-slate-300">
@@ -190,6 +284,37 @@ export default function App() {
                 Threads @neo.nnode
               </a>
             </div>
+
+            <form onSubmit={handleFeedbackSubmit} className="mt-6 grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  value={feedback.name}
+                  onChange={(e) => setFeedback((s) => ({ ...s, name: e.target.value }))}
+                  placeholder="Ваше ім’я"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
+                />
+                <button
+                  type="submit"
+                  disabled={sendState === 'sending'}
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 disabled:opacity-60"
+                >
+                  {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Надіслати у Telegram'}
+                </button>
+              </div>
+              <textarea
+                value={feedback.message}
+                onChange={(e) => setFeedback((s) => ({ ...s, message: e.target.value }))}
+                placeholder="Повідомлення"
+                rows={4}
+                className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
+              />
+              {!webhookUrl ? (
+                <div className="text-xs text-slate-500">
+                  Немає налаштування VITE_N8N_WEBHOOK_URL. Додайте його у .env для відправки форми.
+                </div>
+              ) : null}
+            </form>
+
             <div className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
               <a className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 hover:border-cyan-500/50" href="tel:+19713941799">
                 +1 971 394 1799
