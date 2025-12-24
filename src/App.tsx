@@ -120,7 +120,7 @@ export default function App() {
   return (
     <div className="relative min-h-dvh bg-slate-950 text-slate-100">
       <SnowBackground />
-      <header className="mx-auto max-w-5xl px-4 py-6">
+      <header className="relative z-10 mx-auto max-w-5xl px-4 py-6">
         <nav className="flex items-center justify-between">
           <a href="https://krapsi.fun" className="flex items-center gap-2 font-semibold tracking-tight">
             <Cpu className="h-5 w-5 text-cyan-300" aria-hidden="true" />
@@ -148,7 +148,7 @@ export default function App() {
         </nav>
       </header>
 
-      <main id="top" className="mx-auto max-w-5xl px-4 pb-14">
+      <main id="top" className="relative z-10 mx-auto max-w-5xl px-4 pb-14">
         <section className="py-10 sm:py-14">
           <div className="max-w-2xl">
             <div ref={heroReveal.ref} className={`transition-all duration-700 ${heroReveal.className}`}>
@@ -330,7 +330,7 @@ export default function App() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-800">
+      <footer className="relative z-10 border-t border-slate-800">
         <div className="mx-auto max-w-5xl px-4 py-10 text-sm text-slate-400">
           {new Date().getFullYear()} icemanic. Зроблено на Vite + React.
         </div>

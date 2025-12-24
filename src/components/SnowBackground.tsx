@@ -10,6 +10,9 @@ export default function SnowBackground() {
 
   const options = useMemo<ISourceOptions>(
     () => ({
+      fullScreen: {
+        enable: false,
+      },
       background: {
         color: { value: 'transparent' },
       },
@@ -49,9 +52,6 @@ export default function SnowBackground() {
           distance: 5,
           speed: 5,
         },
-        zIndex: {
-          value: -1,
-        },
       },
       detectRetina: true,
     }),
@@ -59,8 +59,8 @@ export default function SnowBackground() {
   )
 
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10">
-      <Particles id="snow" init={particlesInit} options={options} />
+    <div className="pointer-events-none absolute inset-0 z-0">
+      <Particles id="snow" init={particlesInit} options={options} className="h-full w-full" />
     </div>
   )
 }
