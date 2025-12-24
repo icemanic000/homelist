@@ -308,11 +308,6 @@ export default function App() {
                 rows={4}
                 className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
               />
-              {!webhookUrl ? (
-                <div className="text-xs text-slate-500">
-                  Немає налаштування VITE_N8N_WEBHOOK_URL. Додайте його у .env для відправки форми.
-                </div>
-              ) : null}
             </form>
 
             <div className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
