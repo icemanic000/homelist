@@ -1,6 +1,6 @@
- import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
- import { Cpu } from 'lucide-react'
- import SnowBackground from './components/SnowBackground'
+ import { useEffect, useRef, useState } from 'react'
+import { Cpu } from 'lucide-react'
+import SnowBackground from './components/SnowBackground'
 
 function Pill({ children }: { children: string }) {
   return (
@@ -72,50 +72,9 @@ function Card({
 }
 
 export default function App() {
-  const webhookUrl = useMemo(() => import.meta.env.VITE_N8N_WEBHOOK_URL as string | undefined, [])
-  const [sendState, setSendState] = useState<'idle' | 'sending' | 'done'>('idle')
-  const [feedback, setFeedback] = useState({ name: '', message: '' })
   const heroReveal = useReveal<HTMLDivElement>()
   const projectsReveal = useReveal<HTMLDivElement>()
   const contactReveal = useReveal<HTMLDivElement>()
-
-  async function postToWebhook(payload: unknown) {
-    if (!webhookUrl) return
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-  }
-
-  async function handleBotLaunch() {
-    setSendState('sending')
-    try {
-      await postToWebhook({ source: 'website', type: 'open_bot', bot: 'StackattackBot', at: new Date().toISOString() })
-      setSendState('done')
-      window.open('https://t.me/StackattackBot', '_blank', 'noreferrer')
-    } finally {
-      window.setTimeout(() => setSendState('idle'), 1400)
-    }
-  }
-
-  async function handleFeedbackSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setSendState('sending')
-    try {
-      await postToWebhook({
-        source: 'website',
-        type: 'feedback',
-        name: feedback.name,
-        message: feedback.message,
-        at: new Date().toISOString(),
-      })
-      setSendState('done')
-      setFeedback({ name: '', message: '' })
-    } finally {
-      window.setTimeout(() => setSendState('idle'), 1400)
-    }
-  }
 
   return (
     <div className="relative min-h-dvh bg-slate-950 text-slate-100">
@@ -188,13 +147,14 @@ export default function App() {
                 >
                   Переглянути проєкти
                 </a>
-                <button
-                  type="button"
-                  onClick={handleBotLaunch}
+                <a
+                  href="https://t.me/StackattackBot"
+                  target="_blank"
+                  rel="noreferrer"
                   className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 hover:bg-slate-900/80"
                 >
-                  {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Запустити StackattackBot'}
-                </button>
+                  запустити @StackattackBot
+                </a>
                 <a
                   href="#contact"
                   className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 hover:border-cyan-500/50 hover:bg-slate-900/80"
@@ -292,31 +252,6 @@ export default function App() {
                 Threads @neo.nnode
               </a>
             </div>
-
-            <form onSubmit={handleFeedbackSubmit} className="mt-6 grid gap-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input
-                  value={feedback.name}
-                  onChange={(e) => setFeedback((s) => ({ ...s, name: e.target.value }))}
-                  placeholder="Ваше ім’я"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
-                />
-              </div>
-              <textarea
-                value={feedback.message}
-                onChange={(e) => setFeedback((s) => ({ ...s, message: e.target.value }))}
-                placeholder="Повідомлення"
-                rows={4}
-                className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-cyan-500/50"
-              />
-              <button
-                type="submit"
-                disabled={sendState === 'sending'}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-100 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 disabled:opacity-60"
-              >
-                {sendState === 'sending' ? 'Sending...' : sendState === 'done' ? 'Done!' : 'Надіслати у Telegram'}
-              </button>
-            </form>
 
             <div className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
               <a className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 hover:border-cyan-500/50" href="tel:+19713941799">
