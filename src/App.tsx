@@ -1,5 +1,6 @@
  import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
  import { Cpu } from 'lucide-react'
+ import SnowBackground from './components/SnowBackground'
 
 function Pill({ children }: { children: string }) {
   return (
@@ -9,34 +10,34 @@ function Pill({ children }: { children: string }) {
   )
 }
 
- function useReveal<T extends HTMLElement>() {
-   const ref = useRef<T | null>(null)
-   const [isVisible, setIsVisible] = useState(false)
+function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
 
-   useEffect(() => {
-     const el = ref.current
-     if (!el) return
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
 
-     const io = new IntersectionObserver(
-       ([entry]) => {
-         if (entry?.isIntersecting) {
-           setIsVisible(true)
-           io.disconnect()
-         }
-       },
-       { threshold: 0.15 },
-     )
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsVisible(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 0.15 },
+    )
 
-     io.observe(el)
-     return () => io.disconnect()
-   }, [])
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
-   const className = isVisible
-     ? 'opacity-100 translate-y-0'
-     : 'opacity-0 translate-y-4'
+  const className = isVisible
+    ? 'opacity-100 translate-y-0'
+    : 'opacity-0 translate-y-4'
 
-   return { ref, className }
- }
+  return { ref, className }
+}
 
 function Card({
   title,
@@ -117,7 +118,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-dvh bg-slate-950 text-slate-100">
+    <div className="relative min-h-dvh bg-slate-950 text-slate-100">
+      <SnowBackground />
       <header className="mx-auto max-w-5xl px-4 py-6">
         <nav className="flex items-center justify-between">
           <a href="https://krapsi.fun" className="flex items-center gap-2 font-semibold tracking-tight">
@@ -232,11 +234,9 @@ export default function App() {
         <section id="projects" className="py-10">
           <div ref={projectsReveal.ref} className={`flex items-end justify-between gap-6 transition-all duration-700 ${projectsReveal.className}`}>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Проєкти</div>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">
                 Будую AI-рішення від ідеї до деплою.
               </h2>
-              <p className="mt-2 text-sm text-slate-300">Те, що варто відкрити.</p>
             </div>
           </div>
 
